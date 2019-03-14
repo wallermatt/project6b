@@ -21,17 +21,19 @@ contract SupplyChain {
   // Define enum 'State' with the following values:
   enum State 
   { 
-    Harvested,  // 0
-    Processed,  // 1
-    Packed,     // 2
-    ForSale,    // 3
-    Sold,       // 4
-    Shipped,    // 5
-    Received,   // 6
-    Purchased   // 7
+    Sheared,  // 0
+    RawPacked,  // 1
+    RawShipped,     // 2
+    RawReceived,    // 3
+    Milled,       // 4
+    Packed,    // 5
+    Shipped,   // 6
+    Received,   // 7
+    Sold,    // 8
+    Purchased  //9
     }
 
-  State constant defaultState = State.Harvested;
+  State constant defaultState = State.Sheared;
 
   // Define a struct 'Item' with the following fields:
   struct Item {
@@ -47,19 +49,21 @@ contract SupplyChain {
     string  productNotes; // Product Notes
     uint    productPrice; // Product Price
     State   itemState;  // Product State as represented in the enum above
-    address distributorID;  // Metamask-Ethereum address of the Distributor
+    address millerID;  // Metamask-Ethereum address of the Miller
     address retailerID; // Metamask-Ethereum address of the Retailer
     address consumerID; // Metamask-Ethereum address of the Consumer
   }
 
   // Define 8 events with the same 8 state values and accept 'upc' as input argument
-  event Harvested(uint upc);
-  event Processed(uint upc);
+  event Sheared(uint upc);
+  event RawPacked(uint upc);
+  event RawShipped(uint upc);
+  event RawReceived(uint upc);
+  event Milled(uint upc);
   event Packed(uint upc);
-  event ForSale(uint upc);
-  event Sold(uint upc);
   event Shipped(uint upc);
   event Received(uint upc);
+  event Sold(uint upc);
   event Purchased(uint upc);
 
   // Define a modifer that checks to see if msg.sender == owner of the contract
@@ -88,51 +92,63 @@ contract SupplyChain {
     items[_upc].consumerID.transfer(amountToReturn);
   }
 
-  // Define a modifier that checks if an item.state of a upc is Harvested
-  modifier harvested(uint _upc) {
-    require(items[_upc].itemState == State.Harvested);
+  // Define a modifier that checks if an item.state of a upc is Sheared
+  modifier sheared(uint _upc) {
+    require(items[_upc].itemState == State.Sheared);
     _;
   }
 
-  // Define a modifier that checks if an item.state of a upc is Processed
-  modifier processed(uint _upc) {
-
+  // Define a modifier that checks if an item.state of a upc is RawPacked
+  modifier rawPacked(uint _upc) {
+    require(items[_upc].itemState == State.RawPacked);
     _;
   }
-  
+
+  // Define a modifier that checks if an item.state of a upc is RawShipped
+  modifier rawShipped(uint _upc) {
+    require(items[_upc].itemState == State.RawShipped);
+    _;
+  }
+
+  // Define a modifier that checks if an item.state of a upc is RawReceived
+  modifier rawReceived(uint _upc) {
+    require(items[_upc].itemState == State.RawReceived);
+    _;
+  }
+
+  // Define a modifier that checks if an item.state of a upc is Milled
+  modifier milled(uint _upc) {
+    require(items[_upc].itemState == State.Milled);
+    _;
+  }
+
   // Define a modifier that checks if an item.state of a upc is Packed
   modifier packed(uint _upc) {
-
+    require(items[_upc].itemState == State.Packed);
     _;
   }
 
-  // Define a modifier that checks if an item.state of a upc is ForSale
-  modifier forSale(uint _upc) {
-
-    _;
-  }
-
-  // Define a modifier that checks if an item.state of a upc is Sold
-  modifier sold(uint _upc) {
-
-    _;
-  }
-  
   // Define a modifier that checks if an item.state of a upc is Shipped
   modifier shipped(uint _upc) {
-
+    require(items[_upc].itemState == State.Shipped);
     _;
   }
 
   // Define a modifier that checks if an item.state of a upc is Received
   modifier received(uint _upc) {
+    require(items[_upc].itemState == State.Received);
+    _;
+  }
 
+  // Define a modifier that checks if an item.state of a upc is Sold
+  modifier sold(uint _upc) {
+    require(items[_upc].itemState == State.Sold);
     _;
   }
 
   // Define a modifier that checks if an item.state of a upc is Purchased
   modifier purchased(uint _upc) {
-    
+    require(items[_upc].itemState == State.Purchased);
     _;
   }
 
