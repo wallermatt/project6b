@@ -1,6 +1,13 @@
 pragma solidity ^0.4.24;
+
+import "../alpacaaccesscontrol/FarmerRole.sol";
+import "../alpacaaccesscontrol/MillerRole.sol";
+import "../alpacaaccesscontrol/RetailerRole.sol";
+import "../alpacaaccesscontrol/ConsumerRole.sol";
+
+
 // Define a contract 'Supplychain'
-contract SupplyChain {
+contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
 
   // Define 'owner'
   address owner;
@@ -169,7 +176,7 @@ contract SupplyChain {
   }
 
   // Define a function 'shearItem' that allows a farmer to mark an item 'Sheared'
-  function shearItem(uint _upc, address _originFarmerID, string _originFarmName, string _originFarmInformation, string  _originFarmLatitude, string  _originFarmLongitude, string  _productNotes) onlyFarmer public 
+  function shearItem(uint _upc, address _originFarmerID, string _originFarmName, string _originFarmInformation, string  _originFarmLatitude, string  _originFarmLongitude, string  _productNotes)  onlyFarmer public
   { 
     // Increment sku
     sku = sku + 1;
@@ -178,7 +185,7 @@ contract SupplyChain {
     emit Sheared(_upc);
 
     // Add the new item as part of Harvest
-    items[_upc] = Item({sku: sku, upc: _upc, ownerID: msg.sender, originFarmerID: _originFarmerID,  originFarmName: _originFarmName, originFarmInformation: originFarmInformation, originFarmLatitude: _originFarmLatitude, originFarmLongitude: _originFarmLongitude, productNotes, _productNotes, itemState: State.Sheared});
+    items[_upc] = Item({sku: sku, upc: _upc, ownerID: msg.sender, originFarmerID: _originFarmerID,  originFarmName: _originFarmName, originFarmInformation: _originFarmInformation, originFarmLatitude: _originFarmLatitude, originFarmLongitude: _originFarmLongitude, productID: _upc + sku, productNotes: _productNotes, productPrice: 0, millerID: 0, retailerID: 0, consumerID: 0, itemState: State.Sheared});
   }
 
   // Define a function 'processItem' that allows a farmer to mark an item 'Processed'
@@ -189,7 +196,7 @@ contract SupplyChain {
   
   {
     // Update the appropriate fields
-    items[_upc].state = State.RawPacked;
+    items[_upc].itemState = State.RawPacked;
     
     // Emit the appropriate event
     emit RawPacked(_upc);
@@ -200,7 +207,7 @@ contract SupplyChain {
   {
     require(isMiller(_millerID));
 
-    items[_upc].state = State.RawShipped;
+    items[_upc].itemState = State.RawShipped;
     items[_upc].ownerID = _millerID;
 
     emit RawShipped(_upc);
@@ -209,7 +216,7 @@ contract SupplyChain {
 
   function receiveRawItem(uint _upc) rawShipped(_upc) onlyMiller verifyCaller(items[_upc].ownerID) public 
   {
-    items[_upc].state = State.RawReceived;
+    items[_upc].itemState = State.RawReceived;
     items[_upc].millerID = msg.sender;
 
     emit RawReceived(_upc);
@@ -218,7 +225,7 @@ contract SupplyChain {
 
   function millItem(uint _upc) rawReceived(_upc) onlyMiller verifyCaller(items[_upc].ownerID) public 
   {
-    items[_upc].state = State.Milled;
+    items[_upc].itemState = State.Milled;
 
     emit Milled(_upc);
   }
@@ -228,7 +235,7 @@ contract SupplyChain {
   {
     require(isRetailer(_retailerID));
 
-    items[_upc].state = State.Shipped;
+    items[_upc].itemState = State.Shipped;
     items[_upc].ownerID = _retailerID;
 
     emit Shipped(_upc);
@@ -237,7 +244,7 @@ contract SupplyChain {
 
   function receiveItem(uint _upc) shipped(_upc) onlyRetailer verifyCaller(items[_upc].ownerID) public 
   {
-    items[_upc].state = State.Received;
+    items[_upc].itemState = State.Received;
     items[_upc].retailerID = msg.sender;
 
     emit Received(_upc);
@@ -246,17 +253,17 @@ contract SupplyChain {
 
   function sellItem(uint _upc, uint _price) received(_upc) onlyRetailer verifyCaller(items[_upc].ownerID) public 
   {
-    items[_upc].state = State.ForSale;
-    items[_upc].price = _price;
+    items[_upc].itemState = State.ForSale;
+    items[_upc].productPrice = _price;
 
     emit ForSale(_upc);    
   }
 
 
-  function buyItem(uint _upc) forSale(_upc) onlyConsumer paidEnough(items[_upc].price) checkValue public payable 
+  function buyItem(uint _upc) forSale(_upc) onlyConsumer paidEnough(items[_upc].productPrice) checkValue(_upc) public payable 
   {
-    items[_upc].state = State.Sold;
-    items[_upc].retailerID.transfer(items[_upc].price);
+    items[_upc].itemState = State.Sold;
+    items[_upc].retailerID.transfer(items[_upc].productPrice);
     items[_upc].consumerID = msg.sender;
     items[_upc].ownerID = msg.sender;
 
@@ -307,7 +314,7 @@ contract SupplyChain {
   uint    productID,
   string  productNotes,
   uint    productPrice,
-  uint    itemState,
+  State    itemState,
   address millerID,
   address retailerID,
   address consumerID
@@ -318,7 +325,7 @@ contract SupplyChain {
     productID = items[_upc].productID;
     productNotes = items[_upc].productNotes;
     productPrice = items[_upc].productPrice;
-    itemState = items[_upc].state;
+    itemState = items[_upc].itemState;
     millerID = items[_upc].millerID;
     retailerID = items[_upc].retailerID;
     consumerID = items[_upc].consumerID;
