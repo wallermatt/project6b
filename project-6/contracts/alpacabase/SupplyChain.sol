@@ -185,7 +185,7 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
     emit Sheared(_upc);
 
     // Add the new item as part of Harvest
-    items[_upc] = Item({sku: sku, upc: _upc, ownerID: msg.sender, originFarmerID: _originFarmerID,  originFarmName: _originFarmName, originFarmInformation: _originFarmInformation, originFarmLatitude: _originFarmLatitude, originFarmLongitude: _originFarmLongitude, productID: _upc + sku, productNotes: _productNotes, productPrice: 0, millerID: 0, retailerID: 0, consumerID: 0, itemState: State.Sheared});
+    items[_upc] = Item({sku: sku, upc: _upc, ownerID: _originFarmerID, originFarmerID: _originFarmerID,  originFarmName: _originFarmName, originFarmInformation: _originFarmInformation, originFarmLatitude: _originFarmLatitude, originFarmLongitude: _originFarmLongitude, productID: _upc + sku, productNotes: _productNotes, productPrice: 0, millerID: 0, retailerID: 0, consumerID: 0, itemState: State.Sheared});
   }
 
   // Define a function 'processItem' that allows a farmer to mark an item 'Processed'
