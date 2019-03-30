@@ -73,6 +73,8 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   event ForSale(uint upc);
   event Sold(uint upc);
 
+  event Logging(string message1, address address1);
+
   // Define a modifer that checks to see if msg.sender == owner of the contract
   modifier onlyOwner() {
     require(msg.sender == owner);
@@ -97,6 +99,14 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
     uint _price = items[_upc].productPrice;
     uint amountToReturn = msg.value - _price;
     items[_upc].consumerID.transfer(amountToReturn);
+  }
+
+  // Define a modifier that checks if an item.state of a upc is Sheared
+  modifier checkItemOwner(uint _upc) {
+    address ownerID = items[_upc].ownerID;
+    emit Logging('check', ownerID);
+    require(msg.sender == ownerID);
+    _;
   }
 
   // Define a modifier that checks if an item.state of a upc is Sheared
@@ -189,7 +199,7 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   }
 
   // Define a function 'processItem' that allows a farmer to mark an item 'Processed'
-  function packRawItem(uint _upc) sheared(_upc) onlyFarmer verifyCaller(items[_upc].ownerID) public 
+  function packRawItem(uint _upc) onlyFarmer sheared(_upc) checkItemOwner(_upc) public 
   // Call modifier to check if upc has passed previous supply chain stage
   
   // Call modifier to verify caller of this function
@@ -197,13 +207,13 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   {
     // Update the appropriate fields
     items[_upc].itemState = State.RawPacked;
-    
+
     // Emit the appropriate event
     emit RawPacked(_upc);
   }
 
 
-  function shipRawItem(uint _upc, address _millerID) sheared(_upc) onlyFarmer verifyCaller(items[_upc].ownerID) public 
+  function shipRawItem(uint _upc, address _millerID) rawPacked(_upc) onlyFarmer checkItemOwner(_upc) public 
   {
     require(isMiller(_millerID));
 
@@ -214,7 +224,7 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   }
 
 
-  function receiveRawItem(uint _upc) rawShipped(_upc) onlyMiller verifyCaller(items[_upc].ownerID) public 
+  function receiveRawItem(uint _upc) rawShipped(_upc) onlyMiller checkItemOwner(_upc) public 
   {
     items[_upc].itemState = State.RawReceived;
     items[_upc].millerID = msg.sender;
@@ -223,15 +233,22 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   }
 
 
-  function millItem(uint _upc) rawReceived(_upc) onlyMiller verifyCaller(items[_upc].ownerID) public 
+  function millItem(uint _upc) rawReceived(_upc) onlyMiller checkItemOwner(_upc) public 
   {
     items[_upc].itemState = State.Milled;
 
     emit Milled(_upc);
   }
 
+  function packItem(uint _upc) milled(_upc) onlyMiller checkItemOwner(_upc) public 
+  {
+    items[_upc].itemState = State.Packed;
 
-  function shipItem(uint _upc, address _retailerID) milled(_upc) onlyMiller verifyCaller(items[_upc].ownerID) public 
+    emit Packed(_upc);
+  }
+
+
+  function shipItem(uint _upc, address _retailerID) packed(_upc) onlyMiller checkItemOwner(_upc) public 
   {
     require(isRetailer(_retailerID));
 
@@ -242,7 +259,7 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   }
 
 
-  function receiveItem(uint _upc) shipped(_upc) onlyRetailer verifyCaller(items[_upc].ownerID) public 
+  function receiveItem(uint _upc) shipped(_upc) onlyRetailer checkItemOwner(_upc) public 
   {
     items[_upc].itemState = State.Received;
     items[_upc].retailerID = msg.sender;
@@ -251,7 +268,7 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
   }
 
 
-  function sellItem(uint _upc, uint _price) received(_upc) onlyRetailer verifyCaller(items[_upc].ownerID) public 
+  function sellItem(uint _upc, uint _price) received(_upc) onlyRetailer checkItemOwner(_upc) public 
   {
     items[_upc].itemState = State.ForSale;
     items[_upc].productPrice = _price;
