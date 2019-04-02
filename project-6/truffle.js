@@ -11,14 +11,12 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     rinkeby: {
-      provider: function() {
+      provider: ()=> {
      return new HDWalletProvider(
        "spirit supply whale amount human item harsh scare congress discover talent hamster",
-       "rinkeby.infura.io/v3/b272dce4f70d4710aa75acd914b7ad37")
+       "rinkeby.infura.io/v3/b272dce4f70d4710aa75acd914b7ad37");
       },
           network_id: '4',
-          gas: 4500000,
-          gasPrice: 10000000000,
 }
   }
 };
