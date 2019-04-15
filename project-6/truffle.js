@@ -16,7 +16,7 @@ module.exports = {
        "spirit supply whale amount human item harsh scare congress discover talent hamster",
        "rinkeby.infura.io/v3/b272dce4f70d4710aa75acd914b7ad37");
       },
-          network_id: '4',
+          network_id: '4'
 }
   }
 };
