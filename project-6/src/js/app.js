@@ -112,6 +112,11 @@ App = {
             App.fetchItemBufferTwo();
             App.fetchEvents();
 
+            App.addFarmer(App.originFarmerID);
+            /// App.addMiller(App.millerID);s
+            /// App.addRetailer(App.retailerID);
+            /// App.addConsumer(App.consumerID);
+
         });
 
         return App.bindEvents();
@@ -165,6 +170,9 @@ App = {
                 break;
             case 12:
                 return await App.fetchItemBufferTwo(event);
+                break;
+            case 13:
+                return await App.addFarmer(event);
                 break;
             }
     },
@@ -350,6 +358,17 @@ App = {
         }).catch(function(err) {
           console.log(err.message);
         });
+    },
+
+    addFarmer: function () {
+        ///    event.preventDefault();
+        ///    var processId = parseInt($(event.target).data('id'));
+                            
+            console.log('addFarmer start...');
+            ///App.contracts.SupplyChain.deployed().then(function(instance) {
+            ///  instance.addFarmer.call(App.originFarmerID);
+            ///})
+            console.log('addFarmer end...');
     },
 
     fetchEvents: function () {
