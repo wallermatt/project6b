@@ -112,10 +112,9 @@ App = {
             App.fetchItemBufferTwo();
             App.fetchEvents();
 
-            App.addFarmer(App.originFarmerID);
-            /// App.addMiller(App.millerID);s
-            /// App.addRetailer(App.retailerID);
-            /// App.addConsumer(App.consumerID);
+            App.addFarmer();
+            App.addMiller(App.millerID);
+            App.addRetailer(App.retailerID);
 
         });
 
@@ -172,7 +171,7 @@ App = {
                 return await App.fetchItemBufferTwo(event);
                 break;
             case 13:
-                return await App.addFarmer(event);
+                return await App.addFarmer();
                 break;
             }
     },
@@ -361,15 +360,40 @@ App = {
     },
 
     addFarmer: function () {
-        ///    event.preventDefault();
-        ///    var processId = parseInt($(event.target).data('id'));
-                            
-            console.log('addFarmer start...');
-            ///App.contracts.SupplyChain.deployed().then(function(instance) {
-            ///  instance.addFarmer.call(App.originFarmerID);
-            ///})
-            console.log('addFarmer end...');
-    },
+                
+            App.contracts.SupplyChain.deployed().then(function(instance) {
+              instance.addFarmer(App.originFarmerID);
+            }).then(function(result) {
+              $("#ftc-item").text(result);
+              console.log('addFarmer', result);
+            }).catch(function(err) {
+              console.log(err.message);
+            });
+        },
+
+    addMiller: function () {
+                
+            App.contracts.SupplyChain.deployed().then(function(instance) {
+              instance.addMiller(App.millerID);
+            }).then(function(result) {
+              $("#ftc-item").text(result);
+              console.log('addMiller', result);
+            }).catch(function(err) {
+              console.log(err.message);
+            });
+        },
+
+    addRetailer: function () {
+                
+            App.contracts.SupplyChain.deployed().then(function(instance) {
+              instance.addRetailer(App.retailerID);
+            }).then(function(result) {
+              $("#ftc-item").text(result);
+              console.log('addRetailer', result);
+            }).catch(function(err) {
+              console.log(err.message);
+            });
+        },
 
     fetchEvents: function () {
         if (typeof App.contracts.SupplyChain.currentProvider.sendAsync !== "function") {
