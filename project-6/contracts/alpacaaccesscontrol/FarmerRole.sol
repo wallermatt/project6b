@@ -31,9 +31,9 @@ contract FarmerRole {
   }
 
   // Define a function 'addFarmer' that adds this role
-  function addFarmer(address account) public {
-    _addFarmer(account);
-  }
+  //function addFarmer(address account) public {
+  //  _addFarmer(account);
+  //}
 
   // Define a function 'renounceFarmer' to renounce this role
   function renounceFarmer() public {

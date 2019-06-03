@@ -31,9 +31,9 @@ contract MillerRole {
   }
 
   // Define a function 'addMiller' that adds this role
-  function addMiller(address account) public onlyMiller {
-    _addMiller(account);
-  }
+  //function addMiller(address account) public onlyMiller {
+  //  _addMiller(account);
+  //}
 
   // Define a function 'renounceMiller' to renounce this role
   function renounceMiller() public {

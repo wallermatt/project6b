@@ -287,6 +287,20 @@ contract SupplyChain is FarmerRole, MillerRole, RetailerRole, ConsumerRole {
     emit Sold(_upc);
   }
 
+  // Define a function 'addFarmer' that adds this role
+  function addFarmer(address account) public onlyOwner {
+    _addFarmer(account);
+  }
+
+  // Define a function 'addMiller' that adds this role
+  function addMiller(address account) public onlyOwner {
+    _addMiller(account);
+  }
+
+  // Define a function 'addRetailer' that adds this role
+  function addRetailer(address account) public onlyOwner {
+    _addRetailer(account);
+  }
 
   // Define a function 'fetchItemBufferOne' that fetches the data
   function fetchItemBufferOne(uint _upc) public view returns 
